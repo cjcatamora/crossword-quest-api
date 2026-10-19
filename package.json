@@ -1,7 +1,7 @@
 {
-  "name": "your-game-api",
+  "name": "crossword-quest-api",
   "version": "1.0.0",
-  "description": "CHANGE_ME - one sentence about your game (CS 313 Software Engineering 1)",
+  "description": "CrosswordQuest is a multiplayer crossword puzzle game where each player uses their own device, players join via a shareable link + 6-digit code, race to solve clues on a shared grid, and see every correct answer fill instantly on everyone's screen.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -19,7 +19,7 @@
   "engines": {
     "node": ">=22"
   },
-  "author": "CHANGE_ME - your full name",
+  "author": "Christine Joy T. Catamora",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^18.0.7",
