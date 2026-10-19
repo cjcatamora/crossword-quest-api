@@ -6,6 +6,8 @@ async function getId(queryInterface, sql) {
   return rows[0];
 }
 
+const JOIN_CODE = '482913'; // six digits, numbers only
+
 module.exports = {
   async up(queryInterface) {
     const host = await getId(queryInterface, "SELECT user_id FROM users WHERE username = 'demo.host'");
@@ -24,13 +26,13 @@ module.exports = {
       host_id: host.user_id,
       set_id: set.set_id,
       grid_id: grid.grid_id,
-      join_code: 'DEMO01',
-      shareable_link: 'https://crossword-quest.test/join/DEMO01',
+      join_code: JOIN_CODE,
+      shareable_link: `https://crossword-quest.test/join/${JOIN_CODE}`,
       status: 'FINISHED',
       started_at: new Date('2026-10-14T09:00:00Z'),
       ended_at: new Date('2026-10-14T09:12:00Z'),
     }]);
-    const session = await getId(queryInterface, "SELECT session_id FROM game_sessions WHERE join_code = 'DEMO01'");
+    const session = await getId(queryInterface, `SELECT session_id FROM game_sessions WHERE join_code = '${JOIN_CODE}'`);
 
     // players: 3 completed, 1 left early
     await queryInterface.bulkInsert('players', [
@@ -70,7 +72,7 @@ module.exports = {
 
   async down(queryInterface) {
     // cascades to players, device_info, solved_words
-    await queryInterface.bulkDelete('game_sessions', { join_code: 'DEMO01' });
+    await queryInterface.bulkDelete('game_sessions', { join_code: JOIN_CODE });
     await queryInterface.bulkDelete('crossword_grids', null, {});
   },
 };
