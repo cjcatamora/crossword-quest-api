@@ -60,11 +60,20 @@ Base URL: `http://localhost:3001/api/v1`
 
 ## What "completed" means in my game
 
-[One or two sentences: when does a player count as having completed a game? For example: "A player completed the game when they answered every question, even if some answers were wrong or timed out."]
+A player completed the game when they solved at least one word (they have a row in `solved_words`) in a game that reached FINISHED. A player who joined but left early without solving any word is not completed.
 
 ## Tables
 
-[List your tables, one line each, in the order of your migrations.]
+| # | Table | Purpose |
+|---|---|---|
+| 1 | users | Host and player accounts |
+| 2 | question_sets | Topic banks of clues |
+| 3 | crossword_grids | Generated grids and their size (8x8 to 12x12) |
+| 4 | clues | Crossword clues with direction, position, text and server-only answer |
+| 5 | game_sessions | Sessions with shareable link, 6-digit join code and status |
+| 6 | players | Players with nickname, color, token, score and streak |
+| 7 | device_info | Device and browser used by each player |
+| 8 | solved_words | Which player solved which clue, points awarded and time |
 
 ## Database scripts
 

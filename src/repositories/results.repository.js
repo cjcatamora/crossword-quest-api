@@ -26,14 +26,36 @@
 //    WHERE s.status = 'CLOSED'
 //      AND (CAST(:since AS timestamptz) IS NULL OR s.ended_at > :since)
 //    ORDER BY s.ended_at, p.score DESC
+// Hub Contract rule 7. Results query for Crossword Quest.
+//
+// One row per player per FINISHED game.
+// completed = true if the player solved at least one word in that game
+// (has a row in solved_words). See README for the rule.
 const { QueryTypes } = require('sequelize');
 const { sequelize } = require('../models');
 
 async function findFinishedGamePlayers(since) {
   const sql = `
-    SELECT NULL AS session_code
-     WHERE FALSE
-  `; // <- replace this placeholder with your query
+    SELECT gs.join_code  AS session_code,
+           gs.started_at AS started_at,
+           gs.ended_at   AS ended_at,
+           u.school_id   AS school_id,
+           p.nickname    AS nickname,
+           p.score       AS score,
+           EXISTS (
+             SELECT 1
+               FROM solved_words sw
+              WHERE sw.player_id = p.player_id
+                AND sw.session_id = gs.session_id
+           )             AS completed
+      FROM game_sessions gs
+      JOIN players p ON p.session_id = gs.session_id
+      JOIN users u   ON u.user_id = p.user_id
+     WHERE gs.status = 'FINISHED'
+       AND gs.ended_at IS NOT NULL
+       AND (CAST(:since AS timestamptz) IS NULL OR gs.ended_at > :since)
+     ORDER BY gs.ended_at, p.score DESC
+  `;
 
   return sequelize.query(sql, {
     type: QueryTypes.SELECT,
