@@ -2,7 +2,15 @@
 
 module.exports = {
   async up(queryInterface) {
-    await queryInterface.bulkInsert('question_sets', [{ name: 'Demo: General Knowledge' }]);
+    // The owner of the set: ask the database for the host's ID, never type it.
+    const [hosts] = await queryInterface.sequelize.query(
+      "SELECT user_id FROM users WHERE username = 'demo.host'"
+    );
+    const hostId = hosts[0].user_id;
+
+    await queryInterface.bulkInsert('question_sets', [
+      { name: 'Demo: General Knowledge', host_id: hostId },
+    ]);
 
     const [sets] = await queryInterface.sequelize.query(
       "SELECT set_id FROM question_sets WHERE name = 'Demo: General Knowledge'"
