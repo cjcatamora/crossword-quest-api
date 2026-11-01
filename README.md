@@ -20,8 +20,8 @@ This is my own build of my group's game concept. Every commit in this repository
 ## Setup
 
 ```
-git clone [repository-url]
-cd [folder-name]
+git clone https://github.com/cjcatamora/crossword-quest-api.git
+cd crossword-quest-api
 npm install
 ```
 
@@ -85,3 +85,48 @@ A player completed the game when they solved at least one word (they have a row 
 | npm run db:check | Counts the rows in every table |
 | npm run db:reset | Empties the database, rebuilds every table and reloads the seed data |
 | npm run check | Runs the same automatic check that GitHub runs after every push |
+
+## Endpoints (Week 11 modules)
+
+All of these need the `X-Demo-User` header, except the three marked "Anyone".
+
+### Module 1: Question sets
+
+| Method | Path | Who may call it | Purpose | Success |
+|---|---|---|---|---|
+| GET | /question-sets | A host | Lists the host's own question sets | 200 |
+| POST | /question-sets | A host | Creates a question set. Body: `{ "name": "..." }` | 201 |
+| GET | /question-sets/{id} | The host who owns it | Reads one question set | 200 |
+| PATCH | /question-sets/{id} | The host who owns it | Renames a question set. Body: `{ "name": "..." }` | 200 |
+| DELETE | /question-sets/{id} | The host who owns it | Deletes a question set. 409 `QUESTION_SET_IN_USE` if a game used it | 204 |
+
+### Module 2: Sessions and players
+
+A game moves through WAITING, then PLAYING, then FINISHED. A game is found by its six-digit code, never by its id.
+
+| Method | Path | Who may call it | Purpose | Success |
+|---|---|---|---|---|
+| POST | /sessions | A host | Starts a game from one of the host's question sets and returns its six-digit code. Body: `{ "set_id": 1 }` | 201 |
+| GET | /sessions/{code} | Anyone | Reads a game | 200 |
+| PATCH | /sessions/{code} | The host of that game | Starts or finishes the game. Body: `{ "status": "PLAYING" }` or `{ "status": "FINISHED" }` | 200 |
+| POST | /sessions/{code}/players | Any account | Joins a game. The same account joining again gets its same seat back. Body: `{ "nickname": "..." }` | 201 (new seat), 200 (rejoin) |
+| GET | /sessions/{code}/players | Anyone | Lists the players of a game: nickname, color and score only | 200 |
+
+### Errors
+
+Every error has the same shape: `{ "error": { "code": "...", "message": "..." } }`.
+
+| Status | Codes | When |
+|---|---|---|
+| 400 | VALIDATION_FAILED, INVALID_JSON | A value is missing, has the wrong type or is out of range. `details` names each field. |
+| 401 | AUTH_REQUIRED | No `X-Demo-User` header, or an unknown account |
+| 403 | FORBIDDEN | The account is not allowed (not a host, or not the owner) |
+| 404 | QUESTION_SET_NOT_FOUND, SESSION_NOT_FOUND | The row does not exist |
+| 409 | NICKNAME_TAKEN, QUESTION_SET_IN_USE, QUESTION_SET_NAME_TAKEN | A database rule said no (see the constraint map in `src/errors/constraint-map.js`) |
+| 409 | SESSION_NOT_JOINABLE, SESSION_ENDED, SESSION_FULL, INVALID_STATUS_CHANGE | A rule of the game said no |
+
+## Test it
+
+1. `npm run db:reset` (empties the database, rebuilds it and reloads the seed data)
+2. `npm run dev`
+3. In Postman, import `postman/crosswordquest-week11.postman_collection.json`, then choose **Run collection**. Every test must pass.
