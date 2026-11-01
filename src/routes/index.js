@@ -14,6 +14,7 @@ router.use(currentUser);
 
 // Your modules, one line each.
 router.use('/question-sets', require('./question-set.routes'));
+router.use('/sessions', require('./session.routes'));
 // router.use('/sessions', require('./session.routes'));
 
 module.exports = router;
