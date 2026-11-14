@@ -4,6 +4,14 @@ const currentUser = require('../middlewares/current-user');
 
 const router = Router();
 
+router.get('/', (req, res) => {
+  res.json({
+    message: 'CrosswordQuest API is running.',
+    health: '/api/v1/health',
+    docs: '/api/v1/docs',
+  });
+});
+
 // Hub Contract endpoints: open to everyone, so they come before currentUser.
 router.use('/health', require('./health.routes'));
 router.use('/game-info', require('./game-info.routes'));

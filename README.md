@@ -54,6 +54,7 @@ Base URL: `http://localhost:3001/api/v1`
 
 | Method | Path | Purpose | Success |
 |---|---|---|---|
+| GET | / | API welcome response with health and documentation links | 200 |
 | GET | /health | Is the API up and can it reach the database? | 200 (503 when the database is down) |
 | GET | /game-info | Slug, name, group, developer, description, player limits, version | 200 |
 | GET | /results | Finished games, every player, and the top 3. Needs the `X-Hub-Key` header. Optional `?since=` | 200 (401 without the key) |
