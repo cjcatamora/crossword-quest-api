@@ -17,4 +17,9 @@ function verify(token) {
   return jwt.verify(token, env.jwt.secret, { algorithms: ['HS256'] });
 }
 
-module.exports = { issue, verify };
+function expiresInSeconds(token) {
+  const payload = jwt.decode(token);
+  return payload.exp - payload.iat;
+}
+
+module.exports = { issue, verify, expiresInSeconds };

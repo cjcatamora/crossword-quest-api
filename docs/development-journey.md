@@ -5,7 +5,7 @@ Student: Christine Joy T. Catamora · Section: 3-1 · Group: Group 6
 One entry per milestone, written the week you did it. Newest at the bottom.
 
 ## M1 · Accounts, passwords and tokens
-- Dates worked: Nov 14, 2026 to (still in progress) · Time spent: 2 hours
+- Dates worked: Nov 14 to Nov 17, 2026 · Time spent: 6 hours
 - Goal: Replace the X-Demo-User header with real accounts: register, login with a bcrypt hash, and a JWT token.
 - What I built: So far, I installed the Weeks 12-18 kit (security/, the new current-user.js, check.yml, ci-check.js, the User model and repository) and added JWT_SECRET, JWT_EXPIRES_IN and CORS_ORIGINS to .env, .env.example, src/config/env.js and updated .gitignore. Login, register and /auth/me are next.
 - Evidence: 7064422 (env keys) · a1f5497 (chore: install the Weeks 12-18 kit)

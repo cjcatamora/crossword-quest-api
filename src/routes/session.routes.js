@@ -7,9 +7,9 @@ const requireUser = require('../middlewares/require-user');
 
 const router = Router();
 
-router.post('/', requireUser('host'), rules.createRules, validate, sessionController.create);
+router.post('/', requireUser('HOST'), rules.createRules, validate, sessionController.create);
 router.get('/:code', rules.codeParam, validate, sessionController.get);
-router.patch('/:code', requireUser('host'), rules.statusRules, validate, sessionController.changeStatus);
+router.patch('/:code', requireUser('HOST'), rules.statusRules, validate, sessionController.changeStatus);
 
 // Players are a part of a session, so their URLs sit under it.
 router.post('/:code/players', requireUser(), rules.joinRules, validate, playerController.join);
