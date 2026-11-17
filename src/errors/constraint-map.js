@@ -11,6 +11,16 @@
 //
 // A constraint that is not listed here still answers 409, with the code CONFLICT.
 module.exports = {
+  users_school_id_key: {
+    status: 409,
+    code: 'SCHOOL_ID_TAKEN',
+    message: 'That school ID is already registered.',
+  },
+  users_email_key: {
+    status: 409,
+    code: 'EMAIL_TAKEN',
+    message: 'That email address is already registered.',
+  },
   players_session_nickname_unique: {
     status: 409,
     code: 'NICKNAME_TAKEN',

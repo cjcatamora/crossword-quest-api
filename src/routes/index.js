@@ -4,6 +4,14 @@ const currentUser = require('../middlewares/current-user');
 
 const router = Router();
 
+router.get('/', (req, res) => {
+  res.json({
+    message: 'CrosswordQuest API is running.',
+    health: '/api/v1/health',
+    docs: '/api/v1/docs',
+  });
+});
+
 // Hub Contract endpoints: open to everyone, so they come before currentUser.
 router.use('/health', require('./health.routes'));
 router.use('/game-info', require('./game-info.routes'));
@@ -11,6 +19,9 @@ router.use('/results', require('./results.routes')); // uses X-Hub-Key, not X-De
 
 // From here on, req.user says who is calling (or null).
 router.use(currentUser);
+
+router.use('/auth', require('./auth.routes'));
+router.use('/users', require('./user.routes'));
 
 // Your modules, one line each.
 router.use('/question-sets', require('./question-set.routes'));

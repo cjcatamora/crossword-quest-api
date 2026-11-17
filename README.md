@@ -47,6 +47,9 @@ npm run dev
 | DB_USER | postgres | Database user |
 | DB_PASSWORD | (your own) | Database password. Never commit this. |
 | HUB_API_KEY | dev-hub-key | Key the Library Game Hub sends to read results. The library gives the real one at deployment. |
+| JWT_SECRET | (64 random hex characters) | Signs login tokens. Keep this secret and never commit it. |
+| JWT_EXPIRES_IN | 1h | Login-token lifetime |
+| CORS_ORIGINS | http://localhost:5173 | Comma-separated browser origins allowed to call the API |
 
 ## Endpoints (Hub Contract v1.2)
 
@@ -54,6 +57,7 @@ Base URL: `http://localhost:3001/api/v1`
 
 | Method | Path | Purpose | Success |
 |---|---|---|---|
+| GET | / | API welcome response with health and documentation links | 200 |
 | GET | /health | Is the API up and can it reach the database? | 200 (503 when the database is down) |
 | GET | /game-info | Slug, name, group, developer, description, player limits, version | 200 |
 | GET | /results | Finished games, every player, and the top 3. Needs the `X-Hub-Key` header. Optional `?since=` | 200 (401 without the key) |
@@ -88,7 +92,8 @@ A player completed the game when they solved at least one word (they have a row 
 
 ## Endpoints (Week 11 modules)
 
-All of these need the `X-Demo-User` header, except the three marked "Anyone".
+Protected routes use `Authorization: Bearer <token>`, except the public routes
+marked "Anyone" and the Hub results route, which uses `X-Hub-Key`.
 
 ### Module 1: Question sets
 
@@ -119,7 +124,7 @@ Every error has the same shape: `{ "error": { "code": "...", "message": "..." } 
 | Status | Codes | When |
 |---|---|---|
 | 400 | VALIDATION_FAILED, INVALID_JSON | A value is missing, has the wrong type or is out of range. `details` names each field. |
-| 401 | AUTH_REQUIRED | No `X-Demo-User` header, or an unknown account |
+| 401 | AUTH_REQUIRED, INVALID_TOKEN, INVALID_CREDENTIALS | Missing/invalid bearer token or failed login |
 | 403 | FORBIDDEN | The account is not allowed (not a host, or not the owner) |
 | 404 | QUESTION_SET_NOT_FOUND, SESSION_NOT_FOUND | The row does not exist |
 | 409 | NICKNAME_TAKEN, QUESTION_SET_IN_USE, QUESTION_SET_NAME_TAKEN | A database rule said no (see the constraint map in `src/errors/constraint-map.js`) |
@@ -129,4 +134,39 @@ Every error has the same shape: `{ "error": { "code": "...", "message": "..." } 
 
 1. `npm run db:reset` (empties the database, rebuilds it and reloads the seed data)
 2. `npm run dev`
-3. In Postman, import `postman/crosswordquest-week11.postman_collection.json`, then choose **Run collection**. Every test must pass.
+3. In Postman, import `postman/crosswordquest-week11.postman_collection.json`. Run **Log in (run this folder first)** before the remaining folders. Every test must pass.
+
+## Accounts (Week 12)
+
+Register and log in at `/auth/register` and `/auth/login`. Send the returned
+token on protected routes as `Authorization: Bearer <token>`. `GET /auth/me`
+returns the account for the current token. New accounts always start as
+`PLAYER`; only an `ADMIN` can list users or change another account's role.
+
+| Method | Path | Purpose | Success |
+|---|---|---|---|
+| POST | /auth/register | Create a PLAYER account with `school_id`, `full_name`, `email` and `password` | 201 |
+| POST | /auth/login | Exchange school ID and password for a JWT | 200 |
+| GET | /auth/me | Read the account represented by the bearer token | 200 |
+| GET | /users | List accounts (ADMIN only) | 200 |
+| PATCH | /users/{id}/role | Change another account's role (ADMIN only) | 200 |
+
+Passwords must be 8–72 characters and contain a letter and a number. The
+password hash is never returned. Failed logins use the same 401 response for
+an unknown school ID and a wrong password.
+
+## Demo accounts
+
+All demo accounts use the password `CrosswordDemo2026!`.
+
+| School ID | Role |
+|---|---|
+| 2099-0001 | HOST |
+| 2099-0002 | PLAYER |
+| 2099-0003 | PLAYER |
+| 2099-0004 | PLAYER |
+| 2099-0005 | PLAYER |
+| 2099-0006 | ADMIN |
+| 2099-0007 | HOST | 
+
+The `demo-passwords` seeder replaces the earlier seeders' known placeholder hashes, then assigns its bcrypt hash only where `password_hash` is `NULL`.
